@@ -16,7 +16,26 @@
     <link rel="stylesheet" href="global.css" />
   </head>
   <body>
-    <h1>Skibbidi Gyattcycle 🚴‍♂️💨</h1>
+    <header style="display: flex; gap: 1em; align-items: baseline">
+      <h1>Skibbidi Gyattcycle 🚴‍♂️💨</h1>
+
+      <label style="margin-left: auto">
+        Filter by time:
+        <input
+          id="time-filter"
+          type="range"
+          min="-1"
+          max="1440"
+          value="-1"
+          step="1"
+        />
+        <span>
+          <time id="time">00:00</time>
+          <em id="time-any">(any time)</em>
+        </span>
+      </label>
+    </header>
+
     <p>
       A bike traffic tracker for the Boston area, pan, zoom, and filter through
       260,000 rides from March 2024. Green lines are bike lanes, circles show
@@ -25,19 +44,7 @@
       gyatt-level bike stats.
     </p>
 
-    <div
-      id="tooltip"
-      style="
-        position: absolute;
-        display: none;
-        padding: 6px;
-        background: white;
-        border: 1px solid black;
-        border-radius: 5px;
-        pointer-events: none;
-        font-size: 14px;
-      "
-    ></div>
+    <div id="tooltip"></div>
 
     <div id="map">
       <svg></svg>
