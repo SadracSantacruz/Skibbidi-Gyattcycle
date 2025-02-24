@@ -34,3 +34,9 @@ body {
   height: 100%;
   pointer-events: none;
 }
+
+svg circle {
+  fill-opacity: 0.6; /* 60% transparent */
+  stroke: white; /* White outline */
+  stroke-width: 1;
+}
