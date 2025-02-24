@@ -36,7 +36,20 @@ body {
 }
 
 svg circle {
-  fill-opacity: 0.6; /* 60% transparent */
+  fill-opacity: 0.6; /* 60% transparency */
   stroke: white; /* White outline */
   stroke-width: 1;
+}
+
+#tooltip {
+  position: absolute;
+  z-index: 2;
+  display: none;
+  padding: 6px;
+  background: white;
+  border: 1px solid black;
+  border-radius: 5px;
+  pointer-events: none;
+  font-size: 14px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }

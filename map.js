@@ -18,6 +18,21 @@ const map = new mapboxgl.Map({
   minZoom: 5, // Minimum allowed zoom
   maxZoom: 18, // Maximum allowed zoom
 });
+
+// Tooltip setup
+const tooltip = d3
+  .select("body")
+  .append("div")
+  .attr("id", "tooltip")
+  .style("position", "absolute")
+  .style("display", "none")
+  .style("background", "rgba(255, 255, 255, 0.9)")
+  .style("border", "1px solid black")
+  .style("border-radius", "5px")
+  .style("padding", "6px")
+  .style("pointer-events", "none")
+  .style("font-size", "14px");
+
 map.on("load", async () => {
   // Add Boston bike lanes
   map.addSource("boston_route", {
@@ -72,18 +87,29 @@ map.on("load", async () => {
       .data(stations)
       .enter()
       .append("circle")
-      .attr("r", 5)
       .attr("fill", "steelblue")
       .attr("stroke", "white")
       .attr("stroke-width", 1)
-      .attr("opacity", 0.8);
-
-    function updatePositions() {
-      circles
-        .attr("cx", (d) => getCoords(d).cx)
-        .attr("cy", (d) => getCoords(d).cy)
-        .attr("r", (d) => radiusScale(d.totalTraffic)); // ✅ Dynamically update radius
-    }
+      .attr("opacity", 0.8)
+      .style("pointer-events", "auto") // ✅ Enable mouse interactions
+      .on("mouseover", function (event, d) {
+        // Show tooltip on hover
+        tooltip
+          .style("display", "block")
+          .html(
+            `<b>${d.totalTraffic} trips</b><br>🚴‍♂️ ${d.departures} departures<br>🛬 ${d.arrivals} arrivals`
+          );
+      })
+      .on("mousemove", function (event) {
+        // Move tooltip with cursor
+        tooltip
+          .style("left", event.pageX + 10 + "px")
+          .style("top", event.pageY - 10 + "px");
+      })
+      .on("mouseout", function () {
+        // Hide tooltip when not hovering
+        tooltip.style("display", "none");
+      });
 
     // Step 4.1: Importing and parsing the traffic data
     const tripsUrl =
@@ -117,13 +143,24 @@ map.on("load", async () => {
 
     console.log("Stations with Traffic Data:", stations);
 
+    // Step 4.3: Size markers according to traffic
     const radiusScale = d3
       .scaleSqrt()
       .domain([0, d3.max(stations, (d) => d.totalTraffic)])
       .range([3, 25]); // Prevents zero-size circles
 
+    // ✅ Update function for positioning & scaling markers
+    function updatePositions() {
+      circles
+        .attr("cx", (d) => getCoords(d).cx)
+        .attr("cy", (d) => getCoords(d).cy)
+        .attr("r", (d) => radiusScale(d.totalTraffic)); // ✅ Applies radius scaling
+    }
+
+    // ✅ Apply updates and make sure tooltips work dynamically
     updatePositions();
 
+    // ✅ Ensure markers resize dynamically when interacting with the map
     map.on("move", updatePositions);
     map.on("zoom", updatePositions);
     map.on("resize", updatePositions);
