@@ -70,7 +70,6 @@ function filterByMinute(tripsByMinute, minute) {
     : tripsByMinute.slice(minMinute, maxMinute).flat();
 }
 
-// 🚀 **Efficient Station Traffic Calculation**
 function computeStationTraffic(stations, timeFilter = -1) {
   const departures = d3.rollup(
     filterByMinute(departuresByMinute, timeFilter),
