@@ -108,6 +108,7 @@ function updateScatterPlot(timeFilter) {
           .attr("stroke", "white")
           .attr("stroke-width", 1)
           .attr("opacity", 0.8)
+          .style("pointer-events", "auto") // Ensure pointer events are enabled
           .on("mouseover", function (event, d) {
             tooltip
               .style("display", "block")
@@ -123,7 +124,24 @@ function updateScatterPlot(timeFilter) {
           .on("mouseout", function () {
             tooltip.style("display", "none");
           }),
-      (update) => update,
+      (update) =>
+        update
+          .style("pointer-events", "auto") // Re-apply pointer events
+          .on("mouseover", function (event, d) {
+            tooltip
+              .style("display", "block")
+              .html(
+                `<b>${d.totalTraffic} trips</b><br>🚴‍♂️ ${d.departures} departures<br>🛬 ${d.arrivals} arrivals`
+              );
+          })
+          .on("mousemove", function (event) {
+            tooltip
+              .style("left", event.pageX + 10 + "px")
+              .style("top", event.pageY - 10 + "px");
+          })
+          .on("mouseout", function () {
+            tooltip.style("display", "none");
+          }),
       (exit) => exit.remove()
     )
     .attr("r", (d) => radiusScale(d.totalTraffic))
@@ -220,8 +238,8 @@ map.on("load", async () => {
         .attr("height", "100%")
         .style("position", "absolute")
         .style("top", "0")
-        .style("left", "0")
-        .style("pointer-events", "none");
+        .style("pointer-events", "none")
+        .style("left", "0");
     }
 
     function getCoords(station) {
@@ -247,6 +265,7 @@ map.on("load", async () => {
       .attr("stroke", "white")
       .attr("stroke-width", 1)
       .attr("opacity", 0.8)
+      .style("pointer-events", "auto") // Enable pointer events on circles
       .style("--departure-ratio", (d) =>
         stationFlow(d.departures / (d.totalTraffic || 1))
       );
