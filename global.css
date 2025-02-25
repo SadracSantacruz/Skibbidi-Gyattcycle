@@ -42,6 +42,15 @@ svg circle {
   stroke: white;
   stroke-width: 1;
   transition: r 0.2s ease-in-out, fill-opacity 0.2s ease-in-out; /* Smooth scaling effect */
+
+  --color-departures: steelblue;
+  --color-arrivals: darkorange;
+  --color: color-mix(
+    in oklch,
+    var(--color-departures) calc(100% * var(--departure-ratio)),
+    var(--color-arrivals)
+  );
+  fill: var(--color);
 }
 
 svg circle:hover {
@@ -148,4 +157,43 @@ label {
   color: gray;
   font-style: italic;
   font-size: 13px;
+}
+.legend {
+  display: flex;
+  justify-content: center; /* Center the legend */
+  align-items: center;
+  gap: 15px; /* Space between items */
+  margin-top: 15px; /* Adds spacing below the map */
+  font-size: 14px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for each item in the legend */
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Legend color swatches */
+.legend-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Assign the correct colors */
+.legend-item:nth-child(1) .legend-swatch {
+  background: steelblue;
+}
+.legend-item:nth-child(2) .legend-swatch {
+  background: purple;
+}
+.legend-item:nth-child(3) .legend-swatch {
+  background: darkorange;
 }

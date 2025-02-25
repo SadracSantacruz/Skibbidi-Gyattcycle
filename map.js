@@ -15,12 +15,14 @@ const map = new mapboxgl.Map({
   maxZoom: 18,
 });
 
-// **Global Variables**
+// Global Variables
 let departuresByMinute = Array.from({ length: 1440 }, () => []);
 let arrivalsByMinute = Array.from({ length: 1440 }, () => []);
 let stations, trips, circles, radiusScale;
 
-// **Tooltip Setup**
+let stationFlow = d3.scaleQuantize().domain([0, 1]).range([0, 0.5, 1]);
+
+// Tooltip Setup
 const tooltip = d3
   .select("body")
   .append("div")
@@ -91,7 +93,7 @@ function computeStationTraffic(stations, timeFilter = -1) {
   });
 }
 
-// 🚀 **Update Scatter Plot Efficiently**
+// Update Scatter Plot Efficiently
 function updateScatterPlot(timeFilter) {
   if (!stations) return; // Prevent crashes before data loads
 
@@ -102,10 +104,13 @@ function updateScatterPlot(timeFilter) {
   circles
     .data(filteredStations, (d) => d.short_name)
     .join("circle")
-    .attr("r", (d) => radiusScale(d.totalTraffic));
+    .attr("r", (d) => radiusScale(d.totalTraffic))
+    .style("--departure-ratio", (d) =>
+      stationFlow(d.departures / (d.totalTraffic || 1))
+    );
 }
 
-// 🚀 **Update Time Display and Scatter Plot**
+// Update Time Display and Scatter Plot
 function updateTimeDisplay() {
   let timeFilter = Number(timeSlider.value);
 
@@ -140,7 +145,7 @@ timeSlider.addEventListener("input", updateTimeDisplay);
 updateTimeDisplay(); // Initialize display
 
 map.on("load", async () => {
-  // **Load Bike Lanes**
+  // Load Bike Lanes
   map.addSource("boston_route", {
     type: "geojson",
     data: "https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson",
@@ -158,13 +163,13 @@ map.on("load", async () => {
   });
 
   try {
-    // **Load Stations**
+    // Load Stations
     const stationsUrl =
       "https://dsc106.com/labs/lab07/data/bluebikes-stations.json";
     const jsonData = await d3.json(stationsUrl);
     stations = jsonData.data.stations;
 
-    // **Load and Bucket Trips**
+    // Load and Bucket Trips
     const tripsUrl =
       "https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv";
     trips = await d3.csv(tripsUrl, (trip) => {
@@ -180,10 +185,10 @@ map.on("load", async () => {
       return trip;
     });
 
-    // **Compute Initial Traffic**
+    // Compute Initial Traffic
     stations = computeStationTraffic(stations);
 
-    // **Set Up SVG for Circles**
+    // Set Up SVG for Circles
     let svg = d3.select("#map").select("svg");
     if (svg.empty()) {
       svg = d3
@@ -203,7 +208,7 @@ map.on("load", async () => {
       return { cx: x, cy: y };
     }
 
-    // **Create Circles**
+    // Create Circles
     circles = svg
       .selectAll("circle")
       .data(stations, (d) => d.short_name)
@@ -212,9 +217,12 @@ map.on("load", async () => {
       .attr("fill", "steelblue")
       .attr("stroke", "white")
       .attr("stroke-width", 1)
-      .attr("opacity", 0.8);
+      .attr("opacity", 0.8)
+      .style("--departure-ratio", (d) =>
+        stationFlow(d.departures / (d.totalTraffic || 1))
+      );
 
-    // **Define Radius Scale**
+    // Define Radius Scale
     radiusScale = d3
       .scaleSqrt()
       .domain([0, d3.max(stations, (d) => d.totalTraffic)])
