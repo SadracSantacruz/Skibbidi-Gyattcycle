@@ -23,7 +23,7 @@ body {
 
 #map {
   width: 100%;
-  height: 100%; /* Prevents map from being too small */
+  height: 100vh; /* Ensure full viewport height */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   position: relative; /* Ensures SVG overlays correctly */
@@ -79,7 +79,7 @@ label {
   gap: 10px;
 }
 
-input[type="range"] {
+#time-slider {
   flex-grow: 1;
   max-width: 200px; /* Prevents excessive stretching */
 }
@@ -90,12 +90,19 @@ span {
   gap: 5px;
 }
 
-time {
+#selected-time {
   font-weight: bold;
 }
 
-em {
+#any-time {
   color: gray;
   font-style: italic;
   font-size: 13px;
+}
+
+/* Improve slider spacing */
+input[type="range"] {
+  width: 100%;
+  max-width: 250px;
+  cursor: pointer;
 }

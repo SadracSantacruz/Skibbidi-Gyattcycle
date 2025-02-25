@@ -29,9 +29,9 @@ const tooltip = d3
   .style("pointer-events", "none")
   .style("font-size", "14px");
 
-const timeSlider = document.getElementById("time-filter"); // ✅ No `#`
-const selectedTime = document.getElementById("time"); // ✅ No `#`
-const anyTimeLabel = document.querySelector("em"); // ✅ Selects <em>
+const timeSlider = document.getElementById("time-slider");
+const selectedTime = document.getElementById("selected-time");
+const anyTimeLabel = document.getElementById("any-time");
 
 function formatTime(minutes) {
   const hours = Math.floor(minutes / 60);
