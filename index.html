@@ -16,11 +16,11 @@
     <link rel="stylesheet" href="global.css" />
   </head>
   <body>
-    <header style="display: flex; gap: 1em; align-items: baseline">
+    <header>
       <h1>Skibbidi Gyattcycle 🚴‍♂️💨</h1>
 
-      <label style="margin-left: auto">
-        Filter by time:
+      <div id="time-slider-container">
+        <label for="time-slider">Filter by time:</label>
         <input
           id="time-slider"
           type="range"
@@ -29,11 +29,11 @@
           value="-1"
           step="1"
         />
-        <span>
+        <span id="time-display">
           <time id="selected-time">00:00</time>
           <em id="any-time">(any time)</em>
         </span>
-      </label>
+      </div>
     </header>
 
     <p>
