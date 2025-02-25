@@ -98,12 +98,35 @@ function updateScatterPlot(timeFilter) {
   if (!stations) return; // Prevent crashes before data loads
 
   const filteredStations = computeStationTraffic(stations, timeFilter);
+  radiusScale.range(timeFilter === -1 ? [0, 25] : [3, 50]);
 
-  timeFilter === -1 ? radiusScale.range([0, 25]) : radiusScale.range([3, 50]);
-
-  circles
+  circles = circles
     .data(filteredStations, (d) => d.short_name)
-    .join("circle")
+    .join(
+      (enter) =>
+        enter
+          .append("circle")
+          .attr("stroke", "white")
+          .attr("stroke-width", 1)
+          .attr("opacity", 0.8)
+          .on("mouseover", function (event, d) {
+            tooltip
+              .style("display", "block")
+              .html(
+                `<b>${d.totalTraffic} trips</b><br>🚴‍♂️ ${d.departures} departures<br>🛬 ${d.arrivals} arrivals`
+              );
+          })
+          .on("mousemove", function (event) {
+            tooltip
+              .style("left", event.pageX + 10 + "px")
+              .style("top", event.pageY - 10 + "px");
+          })
+          .on("mouseout", function () {
+            tooltip.style("display", "none");
+          }),
+      (update) => update,
+      (exit) => exit.remove()
+    )
     .attr("r", (d) => radiusScale(d.totalTraffic))
     .style("--departure-ratio", (d) =>
       stationFlow(d.departures / (d.totalTraffic || 1))
@@ -208,6 +231,13 @@ map.on("load", async () => {
       return { cx: x, cy: y };
     }
 
+    function updatePositions() {
+      circles
+        .attr("cx", (d) => getCoords(d).cx)
+        .attr("cy", (d) => getCoords(d).cy)
+        .attr("r", (d) => radiusScale(d.totalTraffic));
+    }
+
     // Create Circles
     circles = svg
       .selectAll("circle")
@@ -227,13 +257,6 @@ map.on("load", async () => {
       .scaleSqrt()
       .domain([0, d3.max(stations, (d) => d.totalTraffic)])
       .range([0, 25]);
-
-    function updatePositions() {
-      circles
-        .attr("cx", (d) => getCoords(d).cx)
-        .attr("cy", (d) => getCoords(d).cy)
-        .attr("r", (d) => radiusScale(d.totalTraffic));
-    }
 
     updatePositions();
     map.on("move", updatePositions);
