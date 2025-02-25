@@ -1,22 +1,18 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
-// Import Mapbox as an ESM module
 import mapboxgl from "https://cdn.jsdelivr.net/npm/mapbox-gl@2.15.0/+esm";
 
-// Check that Mapbox GL JS is loaded
-console.log("Mapbox GL JS Loaded:", mapboxgl);
-
-// Set your Mapbox access token here
+// Set your Mapbox access token
 mapboxgl.accessToken =
   "pk.eyJ1Ijoic2FkcmFjc2FudGFjcnV6IiwiYSI6ImNtN2lveHZucDB1amkyc29sbmhvMnNzZWwifQ.PIX8O91zoii_Wb3vHbPpcw";
 
 // Initialize the map
 const map = new mapboxgl.Map({
-  container: "map", // ID of the div where the map will render
-  style: "mapbox://styles/mapbox/streets-v12", // Map style
-  center: [-71.09415, 42.36027], // [longitude, latitude]
-  zoom: 12, // Initial zoom level
-  minZoom: 5, // Minimum allowed zoom
-  maxZoom: 18, // Maximum allowed zoom
+  container: "map",
+  style: "mapbox://styles/mapbox/streets-v12",
+  center: [-71.09415, 42.36027],
+  zoom: 12,
+  minZoom: 5,
+  maxZoom: 18,
 });
 
 // Tooltip setup
@@ -32,6 +28,34 @@ const tooltip = d3
   .style("padding", "6px")
   .style("pointer-events", "none")
   .style("font-size", "14px");
+
+const timeSlider = document.getElementById("time-filter"); // ✅ No `#`
+const selectedTime = document.getElementById("time"); // ✅ No `#`
+const anyTimeLabel = document.querySelector("em"); // ✅ Selects <em>
+
+function formatTime(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return new Date(2000, 0, 1, hours, mins).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function updateTimeDisplay() {
+  const timeFilter = Number(timeSlider.value);
+
+  if (timeFilter === -1) {
+    selectedTime.textContent = ""; // Clear time display
+    anyTimeLabel.style.display = "inline"; // Show "(any time)"
+  } else {
+    selectedTime.textContent = formatTime(timeFilter); // Display formatted time
+    anyTimeLabel.style.display = "none"; // Hide "(any time)"
+  }
+}
+
+timeSlider.addEventListener("input", updateTimeDisplay);
+updateTimeDisplay(); // Initialize display
 
 map.on("load", async () => {
   // Add Boston bike lanes
@@ -147,20 +171,17 @@ map.on("load", async () => {
     const radiusScale = d3
       .scaleSqrt()
       .domain([0, d3.max(stations, (d) => d.totalTraffic)])
-      .range([3, 25]); // Prevents zero-size circles
+      .range([0, 25]); // Prevents zero-size circles
 
-    // ✅ Update function for positioning & scaling markers
     function updatePositions() {
       circles
         .attr("cx", (d) => getCoords(d).cx)
         .attr("cy", (d) => getCoords(d).cy)
-        .attr("r", (d) => radiusScale(d.totalTraffic)); // ✅ Applies radius scaling
+        .attr("r", (d) => radiusScale(d.totalTraffic));
     }
 
-    // ✅ Apply updates and make sure tooltips work dynamically
     updatePositions();
 
-    // ✅ Ensure markers resize dynamically when interacting with the map
     map.on("move", updatePositions);
     map.on("zoom", updatePositions);
     map.on("resize", updatePositions);
